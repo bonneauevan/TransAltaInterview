@@ -1,7 +1,11 @@
-﻿namespace TransAltaInterview.Interfaces
+﻿using TransAltaInterview.Models;
+
+namespace TransAltaInterview.Interfaces
 {
     public interface IWeatherForecastService
     {
-        Task<string> TestServiceMethodAsync(string input);
+        Task<ServiceResult<string>> TestServiceMethodAsync(string input);
+
+        Task<ServiceResult> WriteRecordAsync(WeatherRecord record);
     }
 }

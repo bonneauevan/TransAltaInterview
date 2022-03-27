@@ -1,7 +1,10 @@
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
+builder.Services.AddDbContext<TransAltaInterview.DbContexts.TransAltaDbContext>(cfg => cfg.UseSqlServer("Server=localhost;Database=transaltalocal;Trusted_Connection=True;"));
 builder.Services.AddScoped<TransAltaInterview.Interfaces.IWeatherForecastService, TransAltaInterview.Services.WeatherForecastService>();
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

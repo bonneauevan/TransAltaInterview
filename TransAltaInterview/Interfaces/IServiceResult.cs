@@ -5,7 +5,7 @@
 
         string Message { get; }
 
-        bool hasError { get; }
+        bool HasError { get; }
 
         Exception Exception { get; }
     }
