@@ -14,28 +14,29 @@ namespace TransAltaInterview.Controllers
             _weatherForecastService = weatherForecastService;
         }
 
-        [HttpGet("testEndpoint", Name = nameof(TestEndpointAsync))]
-        public async Task<ActionResult<string>> TestEndpointAsync(string input)
+        [HttpGet("getMonthlySummary", Name =nameof(GetMonthlySummaryAsync))]
+        public async Task<ActionResult<MontlySummary>> GetMonthlySummaryAsync(string month, int day, int year)
         {
-            var result = await _weatherForecastService.TestServiceMethodAsync(input);
+
+        }
+
+        [HttpGet("getWeatherData", Name =nameof(GetWeatherDataAsync))]
+        public async Task<ActionResult<WeatherRecord>> GetWeatherDataAsync()
+        {
+            var result = await _weatherForecastService.GetWeatherDataAsync();
 
             if (result?.HasError == true)
             {
-                return Conflict(result.Exception);
+                return StatusCode(StatusCodes.Status500InternalServerError, result.Exception);
             }
 
-            return Ok(result.Result);
+            return Ok(result?.Result);
         }
 
-        [HttpPost("writeRecord", Name=nameof(WriteRecordAsync))]
-        public async Task<ActionResult> WriteRecordAsync(WeatherRecord record)
+        [HttpGet("updateWeatherData", Name =nameof(UpdateWeatherDataAsync))]
+        public async Task<ActionResult> UpdateWeatherDataAsync()
         {
-            if (record == null)
-            {
-                return BadRequest();
-            }
-
-            var result = await _weatherForecastService.WriteRecordAsync(record);
+            var result = await _weatherForecastService.UpdateWeatherDataAsync();
 
             if (result?.HasError == true)
             {

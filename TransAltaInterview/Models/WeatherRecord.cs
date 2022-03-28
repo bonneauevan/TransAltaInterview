@@ -41,6 +41,6 @@ namespace TransAltaInterview.Models
         [JsonPropertyName("theoreticalpower")]
         [JsonProperty("theoreticalpower")]
         [Display(Name = "TheoreticalPower")]
-        public float TheoreticalPower { get; set; }
+        public double TheoreticalPower { get; set; }
     }
 }

@@ -4,8 +4,10 @@ namespace TransAltaInterview.Interfaces
 {
     public interface IWeatherForecastService
     {
-        Task<ServiceResult<string>> TestServiceMethodAsync(string input);
+        Task<ServiceResult<WeatherRecord>> GetWeatherDataAsync();
 
-        Task<ServiceResult> WriteRecordAsync(WeatherRecord record);
+        Task<ServiceResult> UpdateWeatherDataAsync();
+
+        Task<ServiceResult<MontlySummary>> GetMonthlySummaryAsync(string month, int day, int year);
     }
 }
