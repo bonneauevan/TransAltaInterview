@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using System.Text;
 using System.Text.Json;
 using TransAltaInterview.DbContexts;
 using TransAltaInterview.Interfaces;
@@ -69,11 +70,40 @@ namespace TransAltaInterview.Services
                 return new ServiceResult<WeatherRecord>(null, ex);
             }
         }
-
-        public async Task<ServiceResult<MontlySummary>> GetMonthlySummaryAsync(string month, int day, int year)
+ 
+        public async Task<ServiceResult<string>> GetWeatherRecordsAsStringAsync()
         {
+            try
+            {
+                var records = _dbContext.WeatherRecords.Select(r => r).ToList();
 
+                if (records == null){
+                    return new ServiceResult<string>(null, new FileNotFoundException());
+                }
+
+                var stringBuilder = new StringBuilder();
+
+                stringBuilder.Append($"TimeStamp, WindSpeed, WindSpeedGust, Temperature, Humidity, TheoreticalPower{Environment.NewLine}");
+
+                foreach(var record in records)
+                {
+                    stringBuilder.Append($"{record.TimeStamp},{record.WindSpeed},{record.WindSpeedGust},{record.Temperature},{record.Humidity},{record.TheoreticalPower}{Environment.NewLine}");
+                }
+
+                return new ServiceResult<string>(stringBuilder.ToString());
+            }
+            catch(Exception ex)
+            {
+                return new ServiceResult<string>(null, ex);
+            }
         }
+        
+        public async Task<ServiceResult<MontlySummary>> GetMonthlySummaryAsync(string month, int year)
+        {
+            //TO BE IMPLEMENTED
+            await Task.FromResult(0);
+            return new ServiceResult<MontlySummary>(null);
+        }       
 
         private double GetTheoreticalPower(int windspeed)
         {

@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using System.Text;
 using TransAltaInterview.Interfaces;
 using TransAltaInterview.Models;
 
@@ -15,9 +16,21 @@ namespace TransAltaInterview.Controllers
         }
 
         [HttpGet("getMonthlySummary", Name =nameof(GetMonthlySummaryAsync))]
-        public async Task<ActionResult<MontlySummary>> GetMonthlySummaryAsync(string month, int day, int year)
+        public async Task<ActionResult<MontlySummary>> GetMonthlySummaryAsync(string month, int year)
         {
+            if (month == null || year == null)
+            {
+                return BadRequest();
+            }
 
+            var result = await _weatherForecastService.GetMonthlySummaryAsync(month, year);
+
+            if (result?.HasError == true)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, result.Exception);
+            }
+
+            return Ok(result.Result);
         }
 
         [HttpGet("getWeatherData", Name =nameof(GetWeatherDataAsync))]
@@ -44,6 +57,22 @@ namespace TransAltaInterview.Controllers
             }
 
             return Ok();
+        }
+
+        [HttpGet("downloadWeatherData", Name = nameof(DownloadWeatherDataAsync))]
+        public async Task<ActionResult> DownloadWeatherDataAsync()
+        {
+            var result = await _weatherForecastService.GetWeatherRecordsAsStringAsync();
+
+            if (result?.HasError == true)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, result.Exception);
+            }
+
+            var bytes = Encoding.ASCII.GetBytes(result.Result);
+
+            return File(bytes, "text/csv", Path.GetFileName("test.csv"));
+
         }
     }
 }
