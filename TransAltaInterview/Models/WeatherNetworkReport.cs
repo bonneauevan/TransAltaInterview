@@ -7,15 +7,26 @@ namespace TransAltaInterview.Models
     public class WeatherNetworkReport
     {
         public Obs obs { get; set; }
+
+        [System.Text.Json.Serialization.JsonIgnore]
         public Sterm sterm { get; set; }
+        [System.Text.Json.Serialization.JsonIgnore]
         public Lterm lterm { get; set; }
+        [System.Text.Json.Serialization.JsonIgnore]
         public Sevendays sevendays { get; set; }
+        [System.Text.Json.Serialization.JsonIgnore]
         public Fourteendays fourteendays { get; set; }
+        [System.Text.Json.Serialization.JsonIgnore]
         public Reports reports { get; set; }
+        [System.Text.Json.Serialization.JsonIgnore]
         public Swo swo { get; set; }
+        [System.Text.Json.Serialization.JsonIgnore]
         public Bug bug { get; set; }
+        [System.Text.Json.Serialization.JsonIgnore]
         public Nightsky nightsky { get; set; }
+        [System.Text.Json.Serialization.JsonIgnore]
         public Daysky daysky { get; set; }
+        [System.Text.Json.Serialization.JsonIgnore]
         public string type { get; set; }
         public string code { get; set; }
         // Root myDeserializedClass = JsonConvert.DeserializeObject<Root>(myJsonResponse);
@@ -211,7 +222,7 @@ namespace TransAltaInterview.Models
         public string metric_snow_unit { get; set; }
         public string imperial_snow_unit { get; set; }
         public bool show_rain { get; set; }
-        public bool show_snow { get; set; }
+        public int show_snow { get; set; }
         public string rainDay_range { get; set; }
         public string rainNight_range { get; set; }
         public string snowDay_range { get; set; }
@@ -298,7 +309,7 @@ namespace TransAltaInterview.Models
     {
         public List<Period> periods { get; set; }
         public bool show_rain { get; set; }
-        public bool show_snow { get; set; }
+        public int show_snow { get; set; }
         public string wind_unit { get; set; }
         public string pelm_measurement { get; set; }
         public int wx_cond_long_flag { get; set; }
