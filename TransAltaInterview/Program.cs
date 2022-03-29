@@ -7,7 +7,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddDbContext<TransAltaInterview.DbContexts.TransAltaDbContext>(cfg => cfg.UseSqlServer("Server=tcp:interviewdbserver2022.database.windows.net,1433;Initial Catalog=InterviewDb;Persist Security Info=False;User ID=interviewadmin;Password={your_password};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"));
+builder.Services.AddDbContext<TransAltaInterview.DbContexts.TransAltaDbContext>(cfg => cfg.UseSqlServer("Server=tcp:interviewdbserver2022.database.windows.net,1433;Initial Catalog=InterviewDb;Persist Security Info=False;User ID=interviewadmin;Password=!QAZ2wsx#EDC;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"));
 builder.Services.AddScoped<TransAltaInterview.Interfaces.IWeatherForecastService, TransAltaInterview.Services.WeatherForecastService>();
 var mapperConfig = new MapperConfiguration(mc =>
 {
