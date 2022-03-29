@@ -8,7 +8,7 @@ namespace TransAltaInterview.Interfaces
 
         Task<ServiceResult> UpdateWeatherDataAsync();
 
-        Task<ServiceResult<MontlySummary>> GetMonthlySummaryAsync(string month, int year);
+        Task<ServiceResult<MonthlySummary>> GetMonthlySummaryAsync(int month, int year);
 
         Task<ServiceResult<string>> GetWeatherRecordsAsStringAsync();
     }

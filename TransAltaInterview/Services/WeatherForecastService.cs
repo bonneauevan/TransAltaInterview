@@ -4,10 +4,11 @@ using System.Text.Json;
 using TransAltaInterview.DbContexts;
 using TransAltaInterview.Interfaces;
 using TransAltaInterview.Models;
+using Microsoft.VisualBasic.FileIO;
 
 namespace TransAltaInterview.Services
 {
-    public class WeatherForecastService: IWeatherForecastService
+    public class WeatherForecastService : IWeatherForecastService
     {
         private readonly TransAltaDbContext _dbContext;
         private readonly IHttpClientFactory _httpClientFactory;
@@ -23,7 +24,8 @@ namespace TransAltaInterview.Services
 
         public async Task<ServiceResult<WeatherRecord>> GetWeatherDataAsync()
         {
-            try {
+            try
+            {
                 var httpClient = _httpClientFactory.CreateClient();
                 httpClient.DefaultRequestHeaders.Add("User-Agent", "API");
 
@@ -70,14 +72,15 @@ namespace TransAltaInterview.Services
                 return new ServiceResult<WeatherRecord>(null, ex);
             }
         }
- 
+
         public async Task<ServiceResult<string>> GetWeatherRecordsAsStringAsync()
         {
             try
             {
                 var records = _dbContext.WeatherRecords.Select(r => r).ToList();
 
-                if (records == null){
+                if (records == null)
+                {
                     return new ServiceResult<string>(null, new FileNotFoundException());
                 }
 
@@ -85,30 +88,152 @@ namespace TransAltaInterview.Services
 
                 stringBuilder.Append($"TimeStamp, WindSpeed, WindSpeedGust, Temperature, Humidity, TheoreticalPower{Environment.NewLine}");
 
-                foreach(var record in records)
+                foreach (var record in records)
                 {
                     stringBuilder.Append($"{record.TimeStamp},{record.WindSpeed},{record.WindSpeedGust},{record.Temperature},{record.Humidity},{record.TheoreticalPower}{Environment.NewLine}");
                 }
 
                 return new ServiceResult<string>(stringBuilder.ToString());
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return new ServiceResult<string>(null, ex);
             }
         }
-        
-        public async Task<ServiceResult<MontlySummary>> GetMonthlySummaryAsync(string month, int year)
+
+        public async Task<ServiceResult<MonthlySummary>> GetMonthlySummaryAsync(int month, int year)
         {
-            //TO BE IMPLEMENTED
-            await Task.FromResult(0);
-            return new ServiceResult<MontlySummary>(null);
-        }       
+            try
+            {
+                var stationId = GetStationId(month, year);
+
+                var httpClient = _httpClientFactory.CreateClient();
+                httpClient.DefaultRequestHeaders.Add("User-Agent", "API");
+
+                var requestMessage = new HttpRequestMessage();
+                requestMessage.Method = HttpMethod.Get;
+                requestMessage.RequestUri = new Uri($"https://climate.weather.gc.ca/climate_data/bulk_data_e.html?format=csv&stationID={stationId}&Year={year}&timeframe=2&submit=Download+Data");
+
+                var responseMessage = await httpClient.SendAsync(requestMessage);
+
+                var content = await responseMessage.Content.ReadAsStreamAsync();
+
+                double maxTemp = double.MinValue;
+                int maxTempDay = 0;
+
+                double minTemp = double.MaxValue;
+                int minTempDay = 0;
+
+                int gustDays = 0;
+
+                double totalPercip = 0;
+
+                using (TextFieldParser parser = new TextFieldParser(content))
+                {
+                    parser.TextFieldType = FieldType.Delimited;
+                    parser.SetDelimiters(",");
+                    // Get rid of headers
+                    parser.ReadFields();
+                    while (!parser.EndOfData)
+                    {
+                        //Processing row
+                        string[] fields = parser.ReadFields();
+
+                        // Check if month is month we are looking for
+                        if (int.Parse(fields[6]) == month)
+                        {
+                            // Check Max temp
+                            if (fields[9] != String.Empty && double.Parse(fields[9]) >= maxTemp)
+                            {
+                                maxTemp = double.Parse(fields[9]);
+                                maxTempDay = int.Parse(fields[7]);
+                            }
+
+                            // Check Min temp
+                            if (fields[11] != String.Empty && double.Parse(fields[11]) <= minTemp)
+                            {
+                                minTemp = double.Parse(fields[11]);
+                                minTempDay = int.Parse(fields[7]);
+                            }
+
+                            if (fields[29] != String.Empty && fields[29] != "<31" && double.Parse(fields[29]) >= 50)
+                            {
+                                gustDays++;
+                            }
+
+                            if (fields[23] != String.Empty)
+                            {
+                                totalPercip += double.Parse(fields[23]);
+                            }
+                        }
+                    }
+                }
+
+                return new ServiceResult<MonthlySummary>(new MonthlySummary()
+                {
+                    ColdestDay = minTempDay,
+                    ColdestTemp = minTemp,
+                    HottestDay = maxTempDay,
+                    HottestTemp = maxTemp,
+                    MaxGustDays = gustDays,
+                    TotalPercipitation = totalPercip
+                });
+            }
+            catch (Exception ex)
+            {
+                return new ServiceResult<MonthlySummary>(null, ex);
+            }
+        }
+
+        private int GetStationId(int month, int year)
+        {
+            int stationId;
+            if (year >= 1960 && year <= 1979)
+            {
+                if (year == 1979 && month <= 6)
+                {
+                    stationId = 49368;
+                }
+                else if (year == 1979)
+                {
+                    stationId = 2287;
+                }
+                else
+                {
+                    stationId = 49368;
+                }
+            }
+            else if (year <= 1994)
+            {
+                if (year == 1994 && month <= 3)
+                {
+                    stationId = 2287;
+                }
+                else if (year == 1994)
+                {
+                    stationId = 8791;
+                }
+                else
+                {
+                    stationId = 2287;
+                }
+            }
+            else if (year <= 2011)
+            {
+                stationId = 8791;
+            }
+            else
+            {
+                stationId = 49368;
+            }
+
+            return stationId;
+        }
 
         private double GetTheoreticalPower(int windspeed)
         {
             // Windspeed in m/s rounded to the nearest .5
-            var windspeed_meters = Math.Round((windspeed / 3.6)*2)/2;
+            var windspeed_meters = Math.Round((windspeed / 3.6) * 2) / 2;
 
             if (windspeed_meters < 4 || windspeed_meters > 25)
             {
@@ -142,7 +267,7 @@ namespace TransAltaInterview.Services
                 case 12.5: return 1766;
                 case 13: return 1792;
                 case 13.5: return 1796;
-                    default: return 0;
+                default: return 0;
             }
 
         }

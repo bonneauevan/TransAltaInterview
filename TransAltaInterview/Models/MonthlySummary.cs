@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 
 namespace TransAltaInterview.Models
 {
-    public class MontlySummary
+    public class MonthlySummary
     {
         [JsonPropertyName("coldestday")]
         [JsonProperty("coldestday")]

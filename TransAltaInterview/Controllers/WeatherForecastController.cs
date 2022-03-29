@@ -16,11 +16,21 @@ namespace TransAltaInterview.Controllers
         }
 
         [HttpGet("getMonthlySummary", Name =nameof(GetMonthlySummaryAsync))]
-        public async Task<ActionResult<MontlySummary>> GetMonthlySummaryAsync(string month, int year)
+        public async Task<ActionResult<MonthlySummary>> GetMonthlySummaryAsync(int month, int year)
         {
             if (month == null || year == null)
             {
                 return BadRequest();
+            }
+
+            if (month > 12 || month < 1)
+            {
+                return BadRequest("Invalid month value");
+            }
+
+            if (year > DateTime.Today.Year || year < 1960)
+            {
+                return BadRequest("Invalid year value");
             }
 
             var result = await _weatherForecastService.GetMonthlySummaryAsync(month, year);
