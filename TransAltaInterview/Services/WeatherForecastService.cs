@@ -105,8 +105,10 @@ namespace TransAltaInterview.Services
         {
             try
             {
+                // Get the station Id from the month and year
                 var stationId = GetStationId(month, year);
 
+                // Set up HTTP request
                 var httpClient = _httpClientFactory.CreateClient();
                 httpClient.DefaultRequestHeaders.Add("User-Agent", "API");
 
@@ -118,6 +120,7 @@ namespace TransAltaInterview.Services
 
                 var content = await responseMessage.Content.ReadAsStreamAsync();
 
+                // Set up storage variables
                 double maxTemp = double.MinValue;
                 int maxTempDay = 0;
 
@@ -128,6 +131,7 @@ namespace TransAltaInterview.Services
 
                 double totalPercip = 0;
 
+                // Parse the csv line by line
                 using (TextFieldParser parser = new TextFieldParser(content))
                 {
                     parser.TextFieldType = FieldType.Delimited;
@@ -140,7 +144,7 @@ namespace TransAltaInterview.Services
                         string[] fields = parser.ReadFields();
 
                         // Check if month is month we are looking for
-                        if (int.Parse(fields[6]) == month)
+                        if (fields[6] != String.Empty && int.Parse(fields[6]) == month)
                         {
                             // Check Max temp
                             if (fields[9] != String.Empty && double.Parse(fields[9]) >= maxTemp)
@@ -169,6 +173,12 @@ namespace TransAltaInterview.Services
                     }
                 }
 
+                // If no data was overwritten, records likely arent there
+                if (maxTempDay == 0)
+                {
+                    return new ServiceResult<MonthlySummary>(new MonthlySummary());
+                }
+
                 return new ServiceResult<MonthlySummary>(new MonthlySummary()
                 {
                     ColdestDay = minTempDay,
@@ -192,7 +202,7 @@ namespace TransAltaInterview.Services
             {
                 if (year == 1979 && month <= 6)
                 {
-                    stationId = 49368;
+                    stationId = 2286;
                 }
                 else if (year == 1979)
                 {
@@ -200,7 +210,7 @@ namespace TransAltaInterview.Services
                 }
                 else
                 {
-                    stationId = 49368;
+                    stationId = 2286;
                 }
             }
             else if (year <= 1994)
